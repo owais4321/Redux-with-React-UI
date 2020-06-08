@@ -193,10 +193,25 @@
     }
 
     class Goals extends React.Component{
+        addGoal=(e)=>{
+            e.preventDefault();
+            const title=this.input.value;
+            this.input.value='';
+            this.props.store.dispatch(addGoalAction({
+                id:generateId(),
+                title:title,
+            }));
+        }
         render(){
         return(
         <div>
-        Goals
+        <h1>Goals</h1>
+        <input 
+        type='text'
+        placeholder='Add todo'
+        ref={(input)=>this.input=input}
+        />
+        <button onClick={(e)=>{this.addGoal(e)}}>Add Goals</button>
         <List/>
         </div>
     )
@@ -230,7 +245,7 @@
     }
     class App extends React.Component{
         render(){
-            return(<div><Todos store={this.props.store} /><Goals/></div>)
+            return(<div><Todos store={this.props.store} /><Goals store={this.props.store}/></div>)
         }
  
     }
