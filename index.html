@@ -182,15 +182,16 @@
         }
     </script>
     <script type='text/babel'>
-    class List extends React.Component{
-    render(){
-    return(
+    const List = (props)=>(
         <ul>
-        <li>List</li>
+        {props.items.map(item=>(
+            <li key={item.id}>
+            <span>{item.title}</span>
+            <button onClick={()=>props.removeItem(item)}>X</button>
+            </li>
+        ))}
         </ul>
     )
-    }
-    }
 
     class Goals extends React.Component{
         addGoal=(e)=>{
@@ -202,6 +203,9 @@
                 title:title,
             }));
         }
+        removeItem=(item)=>{
+            this.props.store.dispatch(removeGoalAction(item.id));
+        }
         render(){
         return(
         <div>
@@ -212,7 +216,9 @@
         ref={(input)=>this.input=input}
         />
         <button onClick={(e)=>{this.addGoal(e)}}>Add Goals</button>
-        <List/>
+        <List 
+        items={this.props.goals}
+        removeItem={this.removeItem}/>
         </div>
     )
     }
@@ -228,6 +234,9 @@
                 complete:false
             }));
         }
+        removeItem=(item)=>{
+            this.props.store.dispatch(removeTodoAction(item.id));
+        }
         render(){
         return(
         <div>
@@ -238,14 +247,24 @@
         ref={(input)=>this.input=input}
         />
         <button onClick={(e)=>{this.addTodo(e)}}>Add Todo</button>
-        <List/>
+        <List items={this.props.todos}
+        removeItem={this.removeItem}/>
         </div>
     )
     }
     }
     class App extends React.Component{
+        componentDidMount(){
+            const {store}=this.props;
+            store.subscribe(()=>this.forceUpdate())
+        }
         render(){
-            return(<div><Todos store={this.props.store} /><Goals store={this.props.store}/></div>)
+            const {store}=this.props;
+            const {todos,goals}=store.getState();
+            return(<div>
+            <Todos todos={todos} store={this.props.store} />
+            <Goals goals={goals} store={this.props.store}/>
+            </div>)
         }
  
     }
