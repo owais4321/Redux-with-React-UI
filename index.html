@@ -182,30 +182,59 @@
         }
     </script>
     <script type='text/babel'>
-    const List=props=>(
+    class List extends React.Component{
+    render(){
+    return(
         <ul>
         <li>List</li>
         </ul>
     )
-    const Goals=props=>(
+    }
+    }
+
+    class Goals extends React.Component{
+        render(){
+        return(
         <div>
         Goals
         <List/>
         </div>
     )
-    const Todos=props=>(
+    }
+    }
+    class Todos extends React.Component{
+        addTodo=(e)=>{
+            e.preventDefault();
+            const title=this.input.value;
+            this.input.value='';
+            this.props.store.dispatch(addTodoAction({
+                id:generateId(),
+                title:title,
+                complete:false
+            }));
+        }
+        render(){
+        return(
         <div>
-        Todos
+        <h1>Todos</h1>
+        <input 
+        type='text'
+        placeholder='Add todo'
+        ref={(input)=>this.input=input}
+        />
+        <button onClick={(e)=>{this.addTodo(e)}}>Add Todo</button>
         <List/>
         </div>
     )
+    }
+    }
     class App extends React.Component{
         render(){
-            return(<div><Todos/><Goals/></div>)
+            return(<div><Todos store={this.props.store} /><Goals/></div>)
         }
  
     }
-    ReactDOM.render(<App/>
+    ReactDOM.render(<App store={store}/>
     ,document.getElementById('app'));
     </script>
 </body>
