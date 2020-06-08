@@ -10,24 +10,7 @@
     <title>Redux + React UI</title>
 </head>
 <body>
-    <div>
-        <h1>Todo List</h1>
-        <input type="text" name="todo" id="todo" placeholder="Add Todo">
-        <button id='todoBtn'>Add Todo</button>
-        <ul id='todos'>
-        </ul>
-    </div>
-    <div>
-        <h1>Goal List</h1>
-        <input type="text" name="goal" id="goal" placeholder="Add Goal">
-        <button id='goalBtn'>Add Goal</button>
-        <ul id='goals'>
-        </ul>
-    </div>
-    <hr>
-    <div id='app'>
-
-    </div>
+    <div id='app'></div>
     <script type='text/javascript'>
         function generateId () {
             return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
@@ -72,7 +55,6 @@
             id
         }
         }
-        //application usage
         function todos(state = [], action) {
         switch (action.type) {
             case ADD_TODO:
@@ -125,68 +107,16 @@
             todos,
             goals
         }),Redux.applyMiddleware(checker,logger));
-        store.subscribe(() =>{
-            const {todos,goals}=store.getState();
-            document.getElementById('todos').innerHTML=''    
-            document.getElementById('goals').innerHTML=''
-            todos.forEach(addTodoToDom);
-            goals.forEach(addGoalToDom);
-            
-        });
-
-        function addTodo(){
-            const input=document.getElementById('todo');
-            const title=input.value;
-            input.value=''
-            store.dispatch(addTodoAction({
-                id:generateId(),
-                title,
-                complete:false
-            }));
-        }
-        function addGoal(){
-            const input=document.getElementById('goal');
-            const title=input.value;
-            input.value=''
-            store.dispatch(addGoalAction({
-                id:generateId(),
-                title,
-            }));
-        }       
-        document.getElementById('todoBtn')
-        .addEventListener('click',addTodo)
-        document.getElementById('goalBtn')
-        .addEventListener('click',addGoal)
-
-        function addTodoToDom(todo){
-            const node=document.createElement('li');
-            const text=document.createTextNode(todo.title);
-            node.appendChild(text);
-            const btn=document.createElement('button');
-            btn.appendChild(document.createTextNode("Remove Todo"))
-            node.appendChild(btn);
-            document.getElementById('todos').appendChild(node);
-            node.style.textDecoration=todo.complete?'line-through':'none';
-            node.addEventListener('click',()=>{store.dispatch(toggleTodoAction(todo.id))})
-            btn.addEventListener('click',()=>{store.dispatch(removeTodoAction(todo.id))});
-        }
-        function addGoalToDom(goal){
-            const node=document.createElement('li');
-            const text=document.createTextNode(goal.title);
-            const btn=document.createElement('button');
-            btn.appendChild(document.createTextNode("Remove Todo"))
-            node.appendChild(text); 
-            node.appendChild(btn);
-            document.getElementById('goals').appendChild(node);
-            btn.addEventListener('click',()=>{store.dispatch(removeGoalAction(goal.id))});
-        }
     </script>
     <script type='text/babel'>
     const List = (props)=>(
         <ul>
         {props.items.map(item=>(
             <li key={item.id}>
-            <span>{item.title}</span>
+            <span
+            onClick={()=>props.toggle && props.toggleTodo(item.id)}
+            style={{textDecoration:item.complete?'line-through':'none'}}
+            >{item.title}</span>
             <button onClick={()=>props.removeItem(item)}>X</button>
             </li>
         ))}
@@ -218,7 +148,8 @@
         <button onClick={(e)=>{this.addGoal(e)}}>Add Goals</button>
         <List 
         items={this.props.goals}
-        removeItem={this.removeItem}/>
+        removeItem={this.removeItem}
+        />
         </div>
     )
     }
@@ -237,6 +168,10 @@
         removeItem=(item)=>{
             this.props.store.dispatch(removeTodoAction(item.id));
         }
+        toggleTodo=(id)=>{
+            this.props.store.dispatch(toggleTodoAction(id))
+        }
+
         render(){
         return(
         <div>
@@ -248,7 +183,10 @@
         />
         <button onClick={(e)=>{this.addTodo(e)}}>Add Todo</button>
         <List items={this.props.todos}
-        removeItem={this.removeItem}/>
+        toggle={true}
+        removeItem={this.removeItem}
+        toggleTodo={this.toggleTodo}/>
+        
         </div>
     )
     }
